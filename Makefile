@@ -1,21 +1,24 @@
 CC = gcc
-CFLAGS = -O3 -Wall -fPIC
-LDFLAGS = -shared
+CFLAGS = -std=c11 -O0 -Wall
+LDFLAGS = 
 INCLUDE = -I include
-SRCS = $(shell find src -maxdepth 2 -name "*.cpp" -printf %f'\n')
-OBJS = $(SRCS:.cpp=.o)
+SRCS = $(shell find src -maxdepth 2 -name "*.c" -printf %f'\n')
+TESTSRCS = $(shell find test -maxdepth 2 -name "*.c" -printf %f'\n')
+SRCDIR = src
+TESTDIR = test
+OBJS = $(SRCS:.c=.o)
+OBJS += $(TESTSRCS:.c=.o)
 BIN = bin
+# VPATH = test ../src ../include
 
-.PHONY: all
+build: quadtest
 
-test: libquad
-	$(CC) -L$(BIN) -lquad.lib test/main.c -o $(BIN)/test
+.PHONY: build clean
 
-libquad: $(addprefix $(BIN)/, $(OBJS))
-	$(CC) $(LDFLAGS) $^ $(INCLUDE) -o ./$(BIN)/$@ 
+all: quadtest
 
-$(BIN)/%.o: %.cpp | directories
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $@ 
+quadtest: 
+	$(CC) $(CFLAGS) $(INCLUDE) $(addprefix $(SRCDIR)/, $(SRCS)) $(addprefix $(TESTDIR)/, $(TESTSRCS)) -o $(BIN)/$@
 
 clean:
 	rm -rf $(BIN)
